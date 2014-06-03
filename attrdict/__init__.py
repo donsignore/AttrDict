@@ -5,20 +5,13 @@ name).
 """
 from collections import Mapping, MutableMapping, Sequence
 import re
-from sys import version_info
+from sys import version_info as py_version
 
 
 __all__ = ['AttrDict', 'merge']
 
 
-if version_info < (3,):  # Python 2
-    PY2 = True
-
-    STRING = basestring
-else:
-    PY2 = False
-
-    STRING = str
+STRING = basestring if py_version(3, ) else str
 
 
 class AttrDict(MutableMapping):
@@ -33,15 +26,11 @@ class AttrDict(MutableMapping):
             copy. This means that you cannot clone an AttrDict using:
             adict = AttrDict(adict)
         """
-        if mapping is None:
-            mapping = {}
-
         self._recursive = recursive  # Has to happen before _mapping
-        self._mapping = mapping
+        self._mapping = mapping or {}
 
-        for key, value in mapping.iteritems() if PY2 else mapping.items():
-            if self._valid_name(key):
-                setattr(self, key, value)
+        isValid = self._valid_name
+        (setattr(self, k, mapping[k]) for k in mapping if isValid(k))
 
     def get(self, key, default=None):
         """
