@@ -249,7 +249,7 @@ class AttrDict(MutableMapping):
                 not hasattr(cls, name))
 
     # Add missing iter methods in 2.X
-    if PY2:
+    if py_version < (3, ):
         def iteritems(self):
             """
             Iterate over (key, value) 2-tuples in the mapping
